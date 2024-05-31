@@ -37,7 +37,7 @@ out/
 .vscode/
 
 
-**/Car_Sharing/*
+**/Car Sharing/*
 /Car Sharing/task/build/
 /Car Sharing/task/out/
 !/Car Sharing/task
