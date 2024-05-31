@@ -1,0 +1,14 @@
+type: edu
+files:
+  - name: src/carsharing/Main.java
+    visible: true
+    learner_created: false
+  - name: test/CarSharingTest.java
+    visible: false
+    learner_created: false
+  - name: test/DatabaseUtil.java
+    visible: false
+    learner_created: false
+feedback_link: https://hyperskill.org/projects/140/stages/759/implement#comment
+status: Unchecked
+record: -1
