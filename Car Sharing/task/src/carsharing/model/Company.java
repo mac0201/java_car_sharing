@@ -2,19 +2,23 @@ package carsharing.model;
 
 public class Company {
 
-    private int id;
+    private long id;
     private String name;
 
     public Company(String name) {
-//        this.id = id;
         this.name = name;
     }
 
-    public int getId() {
+    public Company(long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

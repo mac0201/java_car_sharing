@@ -5,28 +5,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 import carsharing.model.Company;
+import carsharing.model.CompanyMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public class DatabaseClient {
 
-    // JDBC driver name
-    static final String JDBC_DRIVER = "org.h2.Driver";
-
-    private final String DATABASE_NAME;
-    private final String DB_URL;
+    private final DatabaseConnection dbConnection;
+    private final CompanyMapper mapper;
+    Logger LOGGER = LoggerFactory.getLogger(DatabaseClient.class);
 
     public DatabaseClient(String dbName) {
-        this.DATABASE_NAME = dbName != null ? dbName : "carsharing";
-        this.DB_URL = "jdbc:h2:./src/carsharing/db/" + DATABASE_NAME;
+        this.dbConnection = new DatabaseConnection(dbName);
+        this.mapper = getMapper();
     }
 
     public void init() {
-        System.out.println("Connecting to database - " + DATABASE_NAME);
         try (Connection conn = getConnection()) {
-            System.out.println("Connected");
-            conn.setAutoCommit(true);
             createTableCompany(conn);
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.error("Database connection failed", e);
         }
     }
 
@@ -37,30 +36,26 @@ public class DatabaseClient {
             name VARCHAR(150) NOT NULL
             )
             """;
-
         try (Statement stm = conn.createStatement()) {
-            System.out.println("Creating table COMPANY...");
             stm.execute(create);
+            LOGGER.info("Created table COMPANY");
         } catch (SQLException e) {
-            System.err.println("Error creating table: " + e.getMessage());
-            e.printStackTrace();
+            LOGGER.error("Error creating COMPANY table {}", e.getMessage());
         }
     }
 
-
     public List<Company> findAll() {
         try (Connection conn = getConnection();
-            Statement stm = conn.createStatement()) {
-            ResultSet rs = stm.executeQuery("SELECT * FROM COMPANY");
+            Statement stm = conn.createStatement();
+            ResultSet rs = stm.executeQuery("SELECT * FROM COMPANY")
+        ) {
             List<Company> companies = new ArrayList<>();
             while (rs.next()) {
-                var company = new Company(rs.getString("name"));
-                company.setId(rs.getInt("id"));
-                companies.add(company);
+                companies.add(mapper.mapCompany(rs));
             }
             return companies;
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.error("Error fetching all COMPANIES", e);
         }
         return List.of();
     }
@@ -71,20 +66,17 @@ public class DatabaseClient {
             PreparedStatement ps = conn.prepareStatement(insert)) {
             ps.setString(1, company.getName());
             ps.executeUpdate();
-            System.out.println("ADDED!");
+            LOGGER.info("Company added to database - {}", company.getName());
         } catch (SQLException e) {
-            e.getMessage();
+            LOGGER.error("Error adding company {} *** {}", company.getName(), e.getMessage());
         }
     }
 
-
     private Connection getConnection() throws RuntimeException {
-        try {
-            Connection conn = DriverManager.getConnection(DB_URL);
-            conn.setAutoCommit(true);
-            return conn;
-        } catch (SQLException e) {
-            throw new RuntimeException("Unable to establish database connection", e);
-        }
+        return dbConnection.connect();
+    }
+
+    private CompanyMapper getMapper() {
+        return rs -> new Company(rs.getInt("id"), rs.getString("name"));
     }
 }
