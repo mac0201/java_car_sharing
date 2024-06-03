@@ -1,5 +1,6 @@
 package carsharing.model;
 
+
 public class Company {
 
     private long id;
@@ -22,11 +23,4 @@ public class Company {
         return name;
     }
 
-    @Override
-    public String toString() {
-        return "Company{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
-    }
 }

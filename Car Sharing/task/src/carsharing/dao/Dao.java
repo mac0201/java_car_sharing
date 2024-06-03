@@ -4,5 +4,6 @@ import java.util.List;
 
 public interface Dao <T> {
     List<T> findAll();
-    void save(T company);
+    List<T> findAllById(long id);
+    void save(T object);
 }

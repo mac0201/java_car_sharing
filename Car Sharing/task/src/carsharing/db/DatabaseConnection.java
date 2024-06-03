@@ -35,6 +35,9 @@ public class DatabaseConnection {
     }
 
     public Connection getConnection() {
+        if (this.connection == null) {
+            return this.connect();
+        }
         return connection;
     }
 

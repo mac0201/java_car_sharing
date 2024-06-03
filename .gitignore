@@ -36,8 +36,11 @@ out/
 ### VS Code ###
 .vscode/
 
+*/carsharing/db/*.mv.db
+*/carsharing/db/*.trace.db
 
 **/Car Sharing/*
 /Car Sharing/task/build/
 /Car Sharing/task/out/
 !/Car Sharing/task
+

@@ -1,5 +1,9 @@
 package carsharing;
 
+import carsharing.menus.MainMenu;
+import carsharing.menus.Menu;
+import carsharing.service.CarSharingService;
+
 public class Main {
 
     public static void main(String[] args) {
@@ -10,7 +14,7 @@ public class Main {
                 dbName = args[1];
             }
         }
-        CarSharing cs = new CarSharing(dbName);
-        cs.runApp(); // run main app
+        Menu menu = new MainMenu(new CarSharingService(dbName));
+        menu.launch();
     }
 }
