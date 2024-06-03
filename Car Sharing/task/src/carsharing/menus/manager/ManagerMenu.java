@@ -1,10 +1,19 @@
-package carsharing.menus;
+package carsharing.menus.manager;
 
+import carsharing.menus.CarMenu;
+import carsharing.menus.Menu;
+import carsharing.menus.MenuUtils;
 import carsharing.model.Company;
 import carsharing.service.CarSharingService;
 
 import java.util.List;
 
+/**
+ * Manager menu can:
+ *  - save company
+ *  - list all companies
+ *  - access car menu
+ */
 public class ManagerMenu implements Menu {
 
     private final Menu parent; // main menu

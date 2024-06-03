@@ -1,5 +1,6 @@
 package carsharing.menus;
 
+import carsharing.menus.manager.ManagerMenu;
 import carsharing.service.CarSharingService;
 
 public class MainMenu implements Menu {
