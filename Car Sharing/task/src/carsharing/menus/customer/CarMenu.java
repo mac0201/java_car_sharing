@@ -1,16 +1,18 @@
-package carsharing.menus;
+package carsharing.menus.customer;
 
+import carsharing.menus.Menu;
+import carsharing.menus.MenuUtils;
 import carsharing.model.Car;
 import carsharing.model.Company;
-import carsharing.service.CarSharingService;
+import carsharing.service.CompanyCarService;
 
 public class CarMenu implements Menu {
 
-    private final CarSharingService service;
+    private final CompanyCarService service;
     private final Menu parent; // manager menu
     private Company company;
 
-    public CarMenu(Menu parent, CarSharingService service) {
+    public CarMenu(Menu parent, CompanyCarService service) {
         this.parent = parent;
         this.service = service;
     }
@@ -42,10 +44,7 @@ public class CarMenu implements Menu {
             System.out.println("The car list is empty!");
         } else {
             System.out.println("Car list:");
-            int counter = 1;
-            for (var car : cars) {
-                System.out.printf("%d. %s\n", counter++, car.getName());
-            }
+            MenuUtils.printNumberedList(cars);
         }
     }
 

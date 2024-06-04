@@ -1,7 +1,7 @@
 package carsharing.model;
 
 
-public class Company {
+public class Company implements Model {
 
     private long id;
     private final String name;

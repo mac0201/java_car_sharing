@@ -1,17 +1,23 @@
 package carsharing.menus;
 
+import carsharing.menus.customer.CustomerMenu;
 import carsharing.menus.manager.ManagerMenu;
-import carsharing.service.CarSharingService;
+import carsharing.service.CompanyCarService;
+import carsharing.service.CustomerService;
 
 public class MainMenu implements Menu {
 
+    private final CompanyCarService managerService;
+    private final CustomerService customerService;
+
     private final Menu managerMenu;
+    private final Menu customerMenu;
 
-    private final CarSharingService service;
-
-    public MainMenu(CarSharingService service) {
-        this.managerMenu = new ManagerMenu(service, this);
-        this.service = service;
+    public MainMenu(CompanyCarService managerService, CustomerService customerService) {
+        this.managerService = managerService;
+        this.customerService = customerService;
+        this.managerMenu = new ManagerMenu(managerService, this);
+        this.customerMenu = new CustomerMenu(customerService, this);
     }
 
     @Override
@@ -21,13 +27,21 @@ public class MainMenu implements Menu {
             int choice = MenuUtils.getNumericInput();
             switch (choice) {
                 case 0 -> { // exit app
-                    service.closeAllConnections();
+                    managerService.closeAllConnections(); // close from carSharing
                     MenuUtils.closeScanner();
                     System.exit(0);
                 }
                 case 1 -> {
                     managerMenu.launch();
                     return;
+                }
+                case 2 -> {
+                    // launch customer menu
+                    customerMenu.launch();
+                    return;
+                }
+                case 3 -> {
+                    ((CustomerMenu) customerMenu).addCustomer();
                 }
                 default -> System.out.println("Invalid choice!");
             }
@@ -39,6 +53,8 @@ public class MainMenu implements Menu {
         System.out.println("""
                 \n=== MAIN MENU ===
                   1. Log in as a manager
+                  2. Log in as a customer
+                  3. Create a customer
                   0. Exit
                 """);
     }

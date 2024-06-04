@@ -1,6 +1,6 @@
 package carsharing.model;
 
-public class Car {
+public class Car implements Model {
 
     private long id;
     private final String name;
@@ -21,6 +21,7 @@ public class Car {
         return id;
     }
 
+    @Override
     public String getName() {
         return name;
     }

@@ -1,12 +1,12 @@
 package carsharing.menus.manager;
 
-import carsharing.menus.CarMenu;
+import carsharing.menus.customer.CarMenu;
 import carsharing.menus.Menu;
-import carsharing.service.CarSharingService;
+import carsharing.service.CompanyCarService;
 
 public class ManagerCarMenu extends CarMenu {
 
-    public ManagerCarMenu(Menu parent, CarSharingService service) {
+    public ManagerCarMenu(Menu parent, CompanyCarService service) {
         super(parent, service);
     }
 
@@ -14,4 +14,6 @@ public class ManagerCarMenu extends CarMenu {
     public void launch() {
 
     }
+
+
 }

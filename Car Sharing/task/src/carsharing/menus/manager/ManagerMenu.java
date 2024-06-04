@@ -1,10 +1,10 @@
 package carsharing.menus.manager;
 
-import carsharing.menus.CarMenu;
+import carsharing.menus.customer.CarMenu;
 import carsharing.menus.Menu;
 import carsharing.menus.MenuUtils;
 import carsharing.model.Company;
-import carsharing.service.CarSharingService;
+import carsharing.service.CompanyCarService;
 
 import java.util.List;
 
@@ -18,9 +18,9 @@ public class ManagerMenu implements Menu {
 
     private final Menu parent; // main menu
     private final Menu companyMenu;
-    private final CarSharingService service;
+    private final CompanyCarService service;
 
-    public ManagerMenu(CarSharingService service, Menu parent) {
+    public ManagerMenu(CompanyCarService service, Menu parent) {
         this.parent = parent;
         this.service = service;
         this.companyMenu = new CarMenu(this, service);
@@ -62,11 +62,8 @@ public class ManagerMenu implements Menu {
         if (companies.isEmpty()) {
             System.out.println("The company list is empty");
         } else {
-            int counter = 1;
             System.out.println("Choose the company:");
-            for (var c : companies) {
-                System.out.printf("%d. %s\n", counter++, c.getName());
-            }
+            MenuUtils.printNumberedList(companies);
             System.out.println("0. Back");
         }
         return companies;

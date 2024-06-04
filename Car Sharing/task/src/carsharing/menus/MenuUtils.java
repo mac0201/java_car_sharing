@@ -1,6 +1,9 @@
 package carsharing.menus;
 
+import carsharing.model.Model;
+
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Scanner;
 
 public class MenuUtils {
@@ -21,6 +24,13 @@ public class MenuUtils {
     public static String getStringInput() {
         scanner.nextLine(); // ?
         return scanner.nextLine();
+    }
+
+    public static void printNumberedList(List<? extends Model> modelList) {
+        int counter = 1;
+        for (Model model : modelList) {
+            System.out.printf("%d. %s\n", counter++, model.getName());
+        }
     }
 
     public static void closeScanner() {

@@ -8,18 +8,24 @@ import carsharing.model.Company;
 
 import java.util.List;
 
-public class CarSharingService {
+public class CompanyCarService {
 
-    private final DatabaseConnection databaseConnection;
+    private final DatabaseConnection dbConnection;
     private final CompanyDao companyDao;
     private final CarDao carDao;
 
-    public CarSharingService(String databaseName) {
-        this.databaseConnection = new DatabaseConnection(databaseName);
-        databaseConnection.connect();
-        this.companyDao = new CompanyDao(databaseConnection);
-        this.carDao = new CarDao(databaseConnection);
+    public CompanyCarService(DatabaseConnection dbConnection) {
+        this.dbConnection = dbConnection;
+        this.companyDao = new CompanyDao(dbConnection);
+        this.carDao = new CarDao(dbConnection);
     }
+
+//    public CompanyCarService(String databaseName) {
+//        this.databaseConnection = new DatabaseConnection(databaseName);
+//        databaseConnection.connect();
+//        this.companyDao = new CompanyDao(databaseConnection);
+//        this.carDao = new CarDao(databaseConnection);
+//    }
 
     public List<Company> findAllCompanies() {
         return companyDao.findAll();
@@ -38,8 +44,8 @@ public class CarSharingService {
     }
 
     public void closeAllConnections() {
-        if (databaseConnection.getConnection() != null) {
-            databaseConnection.close();
+        if (dbConnection.getConnection() != null) {
+            dbConnection.close();
         }
     }
 }

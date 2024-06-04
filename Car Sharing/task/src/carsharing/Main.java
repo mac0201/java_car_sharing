@@ -2,7 +2,7 @@ package carsharing;
 
 import carsharing.menus.MainMenu;
 import carsharing.menus.Menu;
-import carsharing.service.CarSharingService;
+import carsharing.service.CompanyCarService;
 
 public class Main {
 
@@ -14,7 +14,17 @@ public class Main {
                 dbName = args[1];
             }
         }
-        Menu menu = new MainMenu(new CarSharingService(dbName));
-        menu.launch();
+
+        CarSharing app = new CarSharing(dbName);
+        app.launch();
+
+
+
+//        var databaseConn = new DatabaseConnection(dbName);
+//        var carService = new CarSharingService(dbName);
+//        var customerService = new CustomerService();
+//
+//        Menu menu = new MainMenu(new CompanyCarService(dbName));
+//        menu.launch();
     }
 }
