@@ -1,9 +1,5 @@
 package carsharing;
 
-import carsharing.menus.MainMenu;
-import carsharing.menus.Menu;
-import carsharing.service.CompanyCarService;
-
 public class Main {
 
     public static void main(String[] args) {

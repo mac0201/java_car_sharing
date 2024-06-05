@@ -1,4 +1,4 @@
-package carsharing.menus;
+package carsharing.menu;
 
 import carsharing.model.Model;
 
@@ -26,11 +26,25 @@ public class MenuUtils {
         return scanner.nextLine();
     }
 
-    public static void printNumberedList(List<? extends Model> modelList) {
+    public static void printNumberedModelList(List<? extends Model> modelList) {
         int counter = 1;
         for (Model model : modelList) {
             System.out.printf("%d. %s\n", counter++, model.getName());
         }
+        System.out.println("0. Back"); //! added
+    }
+
+    public static void printNumberedOptionsList(List<String> options) {
+        int counter = 1;
+        String returnStr = null;
+        for (String option : options) {
+            if (option.equalsIgnoreCase("Exit") || option.equalsIgnoreCase("Back")) {
+                returnStr = option;
+            } else {
+                System.out.printf("%d. %s\n", counter++, option);
+            }
+        }
+        if (returnStr != null) System.out.println("0. " + returnStr); // back/exit as last element
     }
 
     public static void closeScanner() {

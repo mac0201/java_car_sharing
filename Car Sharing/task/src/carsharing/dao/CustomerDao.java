@@ -22,6 +22,7 @@ public class CustomerDao implements Dao<Customer> {
         initTable();
     }
 
+    // find all customers
     @Override
     public List<Customer> findAll() {
         String select = "SELECT * FROM customer";
@@ -40,6 +41,52 @@ public class CustomerDao implements Dao<Customer> {
         }
         return customers;
     }
+
+    // get rented car info
+    public String getRentedCarInfo(long customerId) {
+
+        String query1 = "SELECT rented_car_id FROM customer WHERE id = ?";
+
+        try (PreparedStatement stmt = dbConnection.getConnection().prepareStatement(query1)) {
+            stmt.setLong(1, customerId);
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                System.out.println("RENTED CAR: " + rs.getString("rented_car_id"));
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return "yes";
+
+    }
+
+    // rent a car
+    public void rentCar(long customerId, long carId) {
+
+        String query = "UPDATE customer SET rented_car_id = ? WHERE id = ?";
+
+        try (PreparedStatement stmt = dbConnection.getConnection().prepareStatement(query)) {
+            stmt.setLong(1, carId);
+            stmt.setLong(2, customerId);
+            stmt.executeUpdate();
+            LOGGER.info("Customer {} has rented car '{}' of company X", customerId, carId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+
+
+
+
+
+
+
 
     @Override
     public List<Customer> findAllById(long id) {
