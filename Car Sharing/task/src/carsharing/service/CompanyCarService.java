@@ -35,12 +35,20 @@ public class CompanyCarService {
         companyDao.save(company);
     }
 
+    public void saveCompany(String name) {
+        saveCompany(new Company(name));
+    }
+
     public List<Car> findAllCarsForCompany(long companyId) {
         return carDao.findAllById(companyId);
     }
 
     public void saveCar(Car car) {
         carDao.save(car);
+    }
+
+    public void saveCar(String name, long companyId) {
+        saveCar(new Car(name, companyId));
     }
 
     public void closeAllConnections() {

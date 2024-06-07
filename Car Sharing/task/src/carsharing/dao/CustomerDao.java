@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class CustomerDao implements Dao<Customer> {
 
@@ -80,14 +81,6 @@ public class CustomerDao implements Dao<Customer> {
 
     }
 
-
-
-
-
-
-
-
-
     @Override
     public List<Customer> findAllById(long id) {
         return List.of();
@@ -105,9 +98,66 @@ public class CustomerDao implements Dao<Customer> {
         }
     }
 
-    public void findRentedCar(long carId) {
-        String select =  "SELECT * FROM customer WHERE fk_car = ? JOIN TABLE car ON car.fk_car = car.fk_car";
+    // ! FINISH
+    public Optional<Long> getRentedCarId(long customerId) {
+        String query = "SELECT rented_car_id FROM customer WHERE id = ?";
+        try (PreparedStatement ps = dbConnection.getConnection().prepareStatement(query)) {
+            ps.setLong(1, customerId);
+            var rs = ps.executeQuery();
+            if (rs.next()) {
+                Long id = rs.getObject("rented_car_id", Long.class);
+                if (id == null) return Optional.empty();
+                return Optional.of(id);
+            }
+            return Optional.empty();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
+
+    public String findRentedCarInfo(long customerId) {
+
+        Optional<Long> rentedCar = getRentedCarId(customerId);
+
+        if (rentedCar.isPresent()) {
+            String query = """
+                SELECT car.name, company.name 
+                FROM customer
+                JOIN car
+                    ON customer.rented_car_id = car.id
+                JOIN company
+                    ON car.company_id = company.id""";
+
+            try (Statement ps = dbConnection.getConnection().createStatement()) {
+                var rs = ps.executeQuery(query);
+                if (rs.next()) {
+                    return """
+                            Your rented car:
+                            %s
+                            Company:
+                            %s
+                            """.formatted(
+                                    rs.getString("car.name"),
+                                    rs.getString("company.name"));
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return null;
+    }
+
+    public void returnCar(long customerId) {
+        String update = "UPDATE customer SET rented_car_id = null WHERE id = ?";
+        try (PreparedStatement ps = dbConnection.getConnection().prepareStatement(update)) {
+            ps.setLong(1, customerId);
+            ps.executeUpdate();
+            LOGGER.info("Customer {} has returned car", customerId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     private void initTable() {
         String create = """
