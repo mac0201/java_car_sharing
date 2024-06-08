@@ -24,7 +24,7 @@ public class MainMenu implements Menu {
             switch (choice) {
                 case 0 -> {
                     MenuUtils.closeScanner();
-                    System.exit(0);
+                    return;
                 }
                 case 1 -> new ManagerCompanyCarMenu(ccs).launch(); // launch manager menu
                 case 2, 3 -> {

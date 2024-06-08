@@ -37,7 +37,6 @@ public class DatabaseConnection {
         return connection;
     }
 
-
     private Connection connect() {
         try {
             Class.forName(JDBC_DRIVER);
