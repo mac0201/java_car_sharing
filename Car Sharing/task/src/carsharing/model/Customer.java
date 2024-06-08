@@ -10,11 +10,6 @@ public class Customer implements Model {
         this.name = name;
     }
 
-    public Customer(String name, long rentedCarId) {
-        this.name = name;
-        this.rentedCarId = rentedCarId;
-    }
-
     public Customer(long id, String name, long rentedCarId) {
         this.id = id;
         this.name = name;

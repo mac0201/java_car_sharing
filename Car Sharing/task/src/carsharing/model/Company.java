@@ -1,6 +1,5 @@
 package carsharing.model;
 
-
 public class Company implements Model {
 
     private long id;

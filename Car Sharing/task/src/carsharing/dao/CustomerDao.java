@@ -9,9 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class CustomerDao implements Dao<Customer> {
 
@@ -23,7 +21,22 @@ public class CustomerDao implements Dao<Customer> {
         initTable();
     }
 
-    // find all customers
+    @Override
+    public void save(Customer customer) {
+        String insert = "INSERT INTO customer (name) VALUES (?)";
+        try (PreparedStatement stm = dbConnection.getConnection().prepareStatement(insert)) {
+            stm.setString(1, customer.getName());
+            stm.executeUpdate();
+            LOGGER.info("Created customer");
+        } catch (SQLException e) {
+            LOGGER.error("Failed adding customer {}", customer.getName());
+        }
+    }
+
+    /**
+     * Find all existing customers
+     * @return List containing Customer instances
+     */
     @Override
     public List<Customer> findAll() {
         String select = "SELECT * FROM customer";
@@ -43,113 +56,27 @@ public class CustomerDao implements Dao<Customer> {
         return customers;
     }
 
-    // get rented car info
-    public String getRentedCarInfo(long customerId) {
-
-        String query1 = "SELECT rented_car_id FROM customer WHERE id = ?";
-
-        try (PreparedStatement stmt = dbConnection.getConnection().prepareStatement(query1)) {
-            stmt.setLong(1, customerId);
-
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                System.out.println("RENTED CAR: " + rs.getString("rented_car_id"));
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        return "yes";
-
-    }
-
-    // rent a car
+    /**
+     * Rent a car for customer
+     */
     public void rentCar(long customerId, long carId) {
-
         String query = "UPDATE customer SET rented_car_id = ? WHERE id = ?";
-
         try (PreparedStatement stmt = dbConnection.getConnection().prepareStatement(query)) {
             stmt.setLong(1, carId);
             stmt.setLong(2, customerId);
             stmt.executeUpdate();
             LOGGER.info("Customer {} has rented car '{}' of company X", customerId, carId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-
-    @Override
-    public List<Customer> findAllById(long id) {
-        return List.of();
-    }
-
-    @Override
-    public void save(Customer customer) {
-        String insert = "INSERT INTO customer (name) VALUES (?)";
-        try (PreparedStatement stm = dbConnection.getConnection().prepareStatement(insert)) {
-            stm.setString(1, customer.getName());
-            stm.executeUpdate();
-            LOGGER.info("Created customer");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            LOGGER.error("Failed renting car '{}' by customer {}", carId, customerId);
         }
     }
 
-    // ! FINISH
-    public Optional<Long> getRentedCarId(long customerId) {
-        String query = "SELECT rented_car_id FROM customer WHERE id = ?";
-        try (PreparedStatement ps = dbConnection.getConnection().prepareStatement(query)) {
-            ps.setLong(1, customerId);
-            var rs = ps.executeQuery();
-            if (rs.next()) {
-                Long id = rs.getObject("rented_car_id", Long.class);
-                if (id == null) return Optional.empty();
-                return Optional.of(id);
-            }
-            return Optional.empty();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public String findRentedCarInfo(long customerId) {
-
-        Optional<Long> rentedCar = getRentedCarId(customerId);
-
-        if (rentedCar.isPresent()) {
-            String query = """
-                SELECT car.name, company.name 
-                FROM customer
-                JOIN car
-                    ON customer.rented_car_id = car.id
-                JOIN company
-                    ON car.company_id = company.id""";
-
-            try (Statement ps = dbConnection.getConnection().createStatement()) {
-                var rs = ps.executeQuery(query);
-                if (rs.next()) {
-                    return """
-                            Your rented car:
-                            %s
-                            Company:
-                            %s
-                            """.formatted(
-                                    rs.getString("car.name"),
-                                    rs.getString("company.name"));
-                }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return null;
-    }
-
+    /**
+     * Return customer's currently rented car
+     */
     public void returnCar(long customerId) {
-        String update = "UPDATE customer SET rented_car_id = null WHERE id = ?";
-        try (PreparedStatement ps = dbConnection.getConnection().prepareStatement(update)) {
+        String query = "UPDATE customer SET rented_car_id = null WHERE id = ?";
+        try (PreparedStatement ps = dbConnection.getConnection().prepareStatement(query)) {
             ps.setLong(1, customerId);
             ps.executeUpdate();
             LOGGER.info("Customer {} has returned car", customerId);
@@ -158,7 +85,54 @@ public class CustomerDao implements Dao<Customer> {
         }
     }
 
+    /**
+     * Checks if customer with provided id is currently renting a car.
+     * @return true if customer renting, else false
+     */
+    public boolean isCustomerRenting(long customerId) {
+        String query = "SELECT rented_car_id FROM customer WHERE id = ?";
+        try (PreparedStatement ps = dbConnection.getConnection().prepareStatement(query)) {
+            ps.setLong(1, customerId);
+            var rs = ps.executeQuery();
+            if (rs.next()) {
+                Long carId = rs.getObject("rented_car_id", Long.class);
+                return carId != null;
+            }
+            return false;
+        } catch (SQLException e) {
+            LOGGER.error("Failed checking if customer is renting {}", e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
 
+    /**
+     * Finds information about customer's rented car - car name and company name.
+     * @return Map with keys 'car' and 'company' which include the names respectively if data was found, else empty map
+     */
+    public Map<String, String> findRentedCarData(long customerId) {
+        String query = """
+                SELECT car.name, company.name 
+                FROM customer
+                JOIN car
+                    ON customer.rented_car_id = car.id
+                JOIN company
+                    ON car.company_id = company.id
+                WHERE customer.id = ?""";
+        try (PreparedStatement ps = dbConnection.getConnection().prepareStatement(query)) {
+            ps.setLong(1, customerId);
+            var rs = ps.executeQuery();
+            if (rs.next()) {
+                return Map.of(
+                        "car", rs.getString("car.name"),
+                        "company", rs.getString("company.name"));
+            }
+            return Map.of();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // Create the CUSTOMER table
     private void initTable() {
         String create = """
                 CREATE TABLE IF NOT EXISTS CUSTOMER (
@@ -170,13 +144,19 @@ public class CustomerDao implements Dao<Customer> {
                     ON DELETE SET NULL
                 )
                 """;
-
         try (Statement stm = dbConnection.getConnection().createStatement()) {
             stm.execute(create);
             LOGGER.info("Created table CUSTOMER");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
     }
+
+    // Implementation not needed
+    @Deprecated
+    @Override
+    public List<Customer> findAllById(long id) {
+        return List.of();
+    }
+
 }

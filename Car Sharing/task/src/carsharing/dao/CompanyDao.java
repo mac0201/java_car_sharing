@@ -20,6 +20,21 @@ public class CompanyDao implements Dao<Company> {
     }
 
     @Override
+    public void save(Company company) {
+        String insert = "INSERT INTO COMPANY (name) VALUES (?)";
+        try (PreparedStatement ps = dbConnection.getConnection().prepareStatement(insert)) {
+            ps.setString(1, company.getName());
+            ps.executeUpdate();
+            LOGGER.info("COMPANY added - {}", company.getName());
+        } catch (SQLException e) {
+            LOGGER.error("Error adding company {} *** {}", company.getName(), e.getMessage());
+        }
+    }
+
+    /**
+     * Find all companies
+     */
+    @Override
     public List<Company> findAll() {
         try (Statement stmt = dbConnection.getConnection().createStatement()) {
             ResultSet rs = stmt.executeQuery("SELECT * FROM company");
@@ -34,28 +49,13 @@ public class CompanyDao implements Dao<Company> {
         return List.of();
     }
 
+    // Implementation not needed
     @Override
     public List<Company> findAllById(long id) {
-        System.err.println("Not implemented");
         return List.of();
     }
 
-    @Override
-    public void save(Company company) {
-        if (company.getName() == null || company.getName().isEmpty()) {
-            LOGGER.error("Company name is null or empty");
-            return;
-        }
-        String insert = "INSERT INTO COMPANY (name) VALUES (?)";
-        try (PreparedStatement ps = dbConnection.getConnection().prepareStatement(insert)) {
-            ps.setString(1, company.getName());
-            ps.executeUpdate();
-            LOGGER.info("COMPANY added - {}", company.getName());
-        } catch (SQLException e) {
-            LOGGER.error("Error adding company {} *** {}", company.getName(), e.getMessage());
-        }
-    }
-
+    // Create the COMPANY table
     private void initTable() {
         String create = """
             CREATE TABLE IF NOT EXISTS COMPANY (

@@ -19,46 +19,6 @@ public class CarDao implements Dao<Car> {
         initTable();
     }
 
-    public List<Car> findAllByIdSkipBooked(long companyId) {
-        String query = """
-                SELECT car.* FROM car
-                LEFT JOIN customer ON customer.rented_car_id = car.id
-                WHERE customer.rented_car_id IS NULL
-                    AND car.company_id = ?
-                """;
-        try (PreparedStatement ps = dbConnection.getConnection().prepareStatement(query)) {
-            ps.setLong(1, companyId);
-            ResultSet rs = ps.executeQuery();
-            return extractCarList(rs);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public List<Car> findAllById(long companyId) {
-        String select = "SELECT * FROM car WHERE company_id = ?";
-        try (PreparedStatement ps = dbConnection.getConnection().prepareStatement(select)) {
-            ps.setLong(1, companyId);
-            ResultSet rs = ps.executeQuery();
-            return extractCarList(rs);
-        } catch (SQLException e) {
-            LOGGER.error("Error fetching all cars", e);
-        }
-        return List.of();
-    }
-
-    private List<Car> extractCarList(ResultSet rs) throws SQLException {
-        List<Car> cars = new ArrayList<>();
-        while (rs.next()) {
-            cars.add(new Car(
-                    rs.getInt("id"),
-                    rs.getString("name"),
-                    rs.getInt("company_id")));
-        }
-        return cars;
-    }
-
     @Override
     public void save(Car car) {
         String insert = "INSERT INTO car (name, company_id) VALUES (?, ?)";
@@ -72,12 +32,63 @@ public class CarDao implements Dao<Car> {
         }
     }
 
+    /**
+     * Find all cars owned by the company with given id. Skips the cars that are booked.
+     * @return List of non-booked cars
+     */
+    public List<Car> findAllByIdSkipBooked(long companyId) {
+        String query = """
+                SELECT car.* FROM car
+                LEFT JOIN customer ON customer.rented_car_id = car.id
+                WHERE customer.rented_car_id IS NULL
+                    AND car.company_id = ?
+                """;
+        try (PreparedStatement ps = dbConnection.getConnection().prepareStatement(query)) {
+            ps.setLong(1, companyId);
+            ResultSet rs = ps.executeQuery();
+            return extractCarList(rs);
+        } catch (SQLException e) {
+            LOGGER.error("Error fetching all cars", e);
+            return List.of();
+        }
+    }
+
+    /**
+     * Find all cars owned by the company with given id. Does not skip booked cars.
+     * @return List of all cars
+     */
     @Override
-    public List<Car> findAll() {
-        System.err.println("Not implemented");
+    public List<Car> findAllById(long companyId) {
+        String select = "SELECT * FROM car WHERE company_id = ?";
+        try (PreparedStatement ps = dbConnection.getConnection().prepareStatement(select)) {
+            ps.setLong(1, companyId);
+            ResultSet rs = ps.executeQuery();
+            return extractCarList(rs);
+        } catch (SQLException e) {
+            LOGGER.error("Error fetching all cars", e);
+        }
         return List.of();
     }
 
+    // Extracts a list of cars from provided ResultSet
+    private List<Car> extractCarList(ResultSet rs) throws SQLException {
+        List<Car> cars = new ArrayList<>();
+        while (rs.next()) {
+            cars.add(new Car(
+                    rs.getInt("id"),
+                    rs.getString("name"),
+                    rs.getInt("company_id")));
+        }
+        return cars;
+    }
+
+    // Implementation not needed
+    @Override
+    public List<Car> findAll() {
+        return List.of();
+    }
+
+    // Create the CAR table
     private void initTable() {
         try (Statement stmt = dbConnection.getConnection().createStatement()) {
             String create = """

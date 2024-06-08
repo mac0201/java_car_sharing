@@ -5,21 +5,14 @@ import carsharing.db.DatabaseConnection;
 import carsharing.model.Customer;
 
 import java.util.List;
+import java.util.Map;
 
 public class CustomerService {
 
-    // customer dao
     private final CustomerDao customerDao;
-    private final DatabaseConnection dbConn;
-//    private final CompanyCarService companyService;
 
-    public CustomerService(DatabaseConnection dbConn) { // CompanyCarService companyService
-        this.dbConn = dbConn;
+    public CustomerService(DatabaseConnection dbConn) {
         this.customerDao = new CustomerDao(dbConn);
-    }
-
-    public void save(Customer customer) {
-        customerDao.save(customer);
     }
 
     public void save(String name) {
@@ -31,11 +24,11 @@ public class CustomerService {
     }
 
     public boolean isRentingCar(long customerId) {
-        return customerDao.getRentedCarId(customerId).isPresent();
+        return customerDao.isCustomerRenting(customerId);
     }
 
-    public String getRentedCarInfo(long customerId) {
-        return customerDao.findRentedCarInfo(customerId);
+    public Map<String, String> findRentedCarData(long customerId) {
+        return customerDao.findRentedCarData(customerId);
     }
 
     public void rentCar(long customerId, long carId) {

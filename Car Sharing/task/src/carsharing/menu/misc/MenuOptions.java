@@ -3,6 +3,7 @@ package carsharing.menu.misc;
 import java.util.Arrays;
 import java.util.List;
 
+/** Specifies options for some of the menus */
 public enum MenuOptions {
 
     MAIN("Log in as a manager", "Log in as a customer", "Create a customer", "Exit"),
@@ -14,10 +15,6 @@ public enum MenuOptions {
 
     MenuOptions(String... options) {
         this.options = Arrays.asList(options);
-    }
-
-    public List<String> getOptions() {
-        return options;
     }
 
     public void printOptionsNumbered() {
@@ -32,5 +29,4 @@ public enum MenuOptions {
         }
         if (returnString != null) System.out.println("0. " + returnString);
     }
-
 }

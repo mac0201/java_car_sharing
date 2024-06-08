@@ -2,7 +2,6 @@ package carsharing.menu;
 
 import carsharing.menu.misc.MenuOptions;
 import carsharing.menu.misc.MenuUtils;
-//import carsharing.menu.misc.RentalContext;
 import carsharing.model.Car;
 import carsharing.service.CompanyCarService;
 import carsharing.service.CustomerService;
@@ -22,97 +21,72 @@ public class RentalMenu implements Menu {
     @Override
     public void launch() {
 
-        // TODO
-        /*
-		- if customer wants to rent a car while already booked, print:
-			"You've already rented a car!"
-
-		- when displaying cars during booking, filter the ones that are already booked (company car menu for customer)
-	        - SELECT * FROM cars WHERE NOT EXISTS (SELECT * FROM users WHERE users.rented_car_id = cars.id);
-            - SELECT cars.* FROM cars LEFT JOIN users ON users.rented_car_id = cars.id WHERE users.rented_car_id IS NULL;
-
-		- make db connection class singleton
-        * */
-
-
-        var rentalContext = new RentalContext();
         while (true) {
-            System.out.printf("=== RENTAL MENU FOR CUSTOMER %s ===\n", customerId);
+            System.out.printf("\n=== RENTAL MENU FOR CUSTOMER %s ===\n", customerId);
             MenuOptions.RENT.printOptionsNumbered();
             int choice = MenuUtils.scanInteger();
-            switch (choice) {
-                case 0 -> { return; }
-                case 1, 2, 3 -> {
-                    boolean customerRenting = isRenting();
-                    if (choice == 1) {
-                        if (customerRenting) {
-                            System.out.println("You've already rented a car!");
-                            break;
-                        }
-                        var companyMenu = new CompanyCarMenu(ccs, rentalContext);
-                        companyMenu.launch();
-                        if (rentalContext.getCarId() != null) { // ! improve
-                            cs.rentCar(customerId, rentalContext.getCarId());
-                            System.out.printf("You rented '%s'\n", rentalContext.getCar().getName());
-                        }
-                    }
-                    else if (choice == 2) {
-                        if (!customerRenting) System.out.println("You didn't rent a car!");
-                        else returnCar();
-                    }
-                    else {
-                        if (!customerRenting)  System.out.println("You didn't rent a car!");
-                        else rentedCarInfo();
-                    }
+
+            if (choice == 0) return;
+
+            boolean customerRenting = isRenting(); // check if customer is renting once, when menu is launched
+
+            if (choice == 1) { // rent a car
+                if (customerRenting) {
+                    System.out.println("You've already rented a car!");
+                    continue;
                 }
-                default -> System.out.println("Invalid choice!");
+                var rentalContext = new RentalContext(); // create a rental context instance which will contain chosen car
+                var companyMenu = new CompanyCarMenu(ccs, rentalContext); // create company/car menu and pass context
+                companyMenu.launch();
+                if (rentalContext.getCar() != null) { // if context contains chosen car
+                    cs.rentCar(customerId, rentalContext.getCar().getId()); // rent
+                    System.out.printf("You rented '%s'\n", rentalContext.getCar().getName());
+                }
             }
+            else if (choice == 2) { // return car
+                if (!customerRenting) System.out.println("You didn't rent a car!");
+                else returnCar();
+            }
+            else if (choice == 3) { // get car info
+                if (!customerRenting)  System.out.println("You didn't rent a car!");
+                else rentedCarData();
+            }
+            else System.out.println("Invalid choice!");
         }
     }
 
+    // check if customer is renting car
     private boolean isRenting() {
         return cs.isRentingCar(customerId);
     }
 
+    // return rented car
     private void returnCar() {
         cs.returnCar(customerId);
         System.out.println("You've returned a rented car!");
     }
 
-    private void rentedCarInfo() {
-        String info = cs.getRentedCarInfo(customerId);
-        System.out.println(info);
+    private void rentedCarData() {
+        var data = cs.findRentedCarData(customerId);
+        System.out.printf("""
+                        Your rented car:
+                        %s
+                        Company:
+                        %s
+                        %n""",
+                data.getOrDefault("car", "-- UNKNOWN --"),
+                data.getOrDefault("company", "-- UNKNOWN --"));
     }
 
     public static class RentalContext {
-        private Long customerId;
-        private Long carId;
         private Car car;
 
         public void setCar(Car car) {
             this.car = car;
-            this.carId = car.getId();
         }
 
         public Car getCar() {
             return car;
         }
-
-        public void setCustomerId(Long customerId) {
-            this.customerId = customerId;
-        }
-
-        public void setCarId(Long carId) {
-            this.carId = carId;
-        }
-
-        public Long getCarId() {
-            return carId;
-        }
-
-        public Long getCustomerId() {
-            return customerId;
-        }
     }
-
 }

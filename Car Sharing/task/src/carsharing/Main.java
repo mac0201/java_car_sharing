@@ -10,17 +10,6 @@ public class Main {
                 dbName = args[1];
             }
         }
-
-        CarSharing app = new CarSharing(dbName);
-        app.launch();
-
-
-
-//        var databaseConn = new DatabaseConnection(dbName);
-//        var carService = new CarSharingService(dbName);
-//        var customerService = new CustomerService();
-//
-//        Menu menu = new MainMenu(new CompanyCarService(dbName));
-//        menu.launch();
+        new CarSharing(dbName).launch();
     }
 }
