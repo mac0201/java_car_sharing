@@ -26,7 +26,11 @@ public class RentalMenu implements Menu {
         /*
 		- if customer wants to rent a car while already booked, print:
 			"You've already rented a car!"
-		- when displaying cars during booking, filter the ones that are already booked
+
+		- when displaying cars during booking, filter the ones that are already booked (company car menu for customer)
+	        - SELECT * FROM cars WHERE NOT EXISTS (SELECT * FROM users WHERE users.rented_car_id = cars.id);
+            - SELECT cars.* FROM cars LEFT JOIN users ON users.rented_car_id = cars.id WHERE users.rented_car_id IS NULL;
+
 		- make db connection class singleton
         * */
 
