@@ -42,16 +42,29 @@ public class RentalMenu implements Menu {
             int choice = MenuUtils.scanInteger();
             switch (choice) {
                 case 0 -> { return; }
-                case 1 -> {
-                    var companyMenu = new CompanyCarMenu(ccs, rentalContext);
-                    companyMenu.launch();
-                    if (rentalContext.getCarId() != null) { // ! improve
-                        cs.rentCar(customerId, rentalContext.getCarId());
-                        System.out.printf("You rented '%s'\n", rentalContext.getCar().getName());
+                case 1, 2, 3 -> {
+                    boolean customerRenting = isRenting();
+                    if (choice == 1) {
+                        if (customerRenting) {
+                            System.out.println("You've already rented a car!");
+                            break;
+                        }
+                        var companyMenu = new CompanyCarMenu(ccs, rentalContext);
+                        companyMenu.launch();
+                        if (rentalContext.getCarId() != null) { // ! improve
+                            cs.rentCar(customerId, rentalContext.getCarId());
+                            System.out.printf("You rented '%s'\n", rentalContext.getCar().getName());
+                        }
+                    }
+                    else if (choice == 2) {
+                        if (!customerRenting) System.out.println("You didn't rent a car!");
+                        else returnCar();
+                    }
+                    else {
+                        if (!customerRenting)  System.out.println("You didn't rent a car!");
+                        else rentedCarInfo();
                     }
                 }
-                case 2 -> returnCar();
-                case 3 -> rentedCarInfo();
                 default -> System.out.println("Invalid choice!");
             }
         }
@@ -62,18 +75,11 @@ public class RentalMenu implements Menu {
     }
 
     private void returnCar() {
-        if (!isRenting()) {
-            System.out.println("You didn't rent a car!");
-            return;
-        }
         cs.returnCar(customerId);
+        System.out.println("You've returned a rented car!");
     }
 
     private void rentedCarInfo() {
-        if (!isRenting()) {
-            System.out.println("You didn't rent a car!");
-            return;
-        }
         String info = cs.getRentedCarInfo(customerId);
         System.out.println(info);
     }

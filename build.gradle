@@ -31,6 +31,8 @@ subprojects {
     dependencies {
         implementation group: 'com.h2database', name: 'h2', version: '1.4.200'
         testImplementation 'com.github.hyperskill:hs-test:release-SNAPSHOT'
+        implementation 'org.slf4j:slf4j-api:2.0.13'
+        implementation 'org.slf4j:slf4j-simple:2.0.13'
     }
 
     configurations.all {

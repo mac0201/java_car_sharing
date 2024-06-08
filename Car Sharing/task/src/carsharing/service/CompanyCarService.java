@@ -39,8 +39,10 @@ public class CompanyCarService {
         saveCompany(new Company(name));
     }
 
-    public List<Car> findAllCarsForCompany(long companyId) {
-        return carDao.findAllById(companyId);
+    public List<Car> findAllCarsForCompany(long companyId, boolean skipBooked) {
+        return skipBooked
+                ? carDao.findAllByIdSkipBooked(companyId)
+                : carDao.findAllById(companyId);
     }
 
     public void saveCar(Car car) {

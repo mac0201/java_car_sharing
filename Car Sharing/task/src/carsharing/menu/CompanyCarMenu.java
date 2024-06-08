@@ -29,7 +29,6 @@ public class CompanyCarMenu implements Menu {
     public void launch() {
 
         // pick company
-
         Optional<Company> company = companyMenu();
 
         if (company.isEmpty()) return;
@@ -56,8 +55,7 @@ public class CompanyCarMenu implements Menu {
     protected Optional<Company> companyMenu() {
 
         // list companies
-
-        System.out.println("=== COMPANY MENU ===");
+        System.out.println("\n=== COMPANY MENU ===");
 
         List<Company> companies = ccs.findAllCompanies();
 
@@ -81,9 +79,8 @@ public class CompanyCarMenu implements Menu {
 
     protected Optional<Car> carMenu(long companyId, boolean isCustomer) {
 
-        System.out.println("\nSelect car:");
 
-        List<Car> cars = ccs.findAllCarsForCompany(companyId);
+        List<Car> cars = ccs.findAllCarsForCompany(companyId, isCustomer);
 
         if (cars.isEmpty()) {
             System.out.println("The car list is empty!");
@@ -95,6 +92,7 @@ public class CompanyCarMenu implements Menu {
             MenuUtils.printModelListNumbered(cars);
         }
         else {
+            System.out.println("\nSelect car:");
             MenuUtils.printModelListNumberedWithReturn(cars);
             // get car for booking
             while (true) {
