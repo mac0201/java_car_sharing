@@ -12,11 +12,11 @@ public class CarSharing {
     private CustomerService customerService;
 
     public CarSharing(String dbName) {
-        this.dbConnection = new DatabaseConnection(dbName);
+        this.dbConnection = DatabaseConnection.getInstance(dbName);
     }
 
     private void init() {
-        dbConnection.connect();
+        dbConnection.getConnection();
         this.companyService = new CompanyCarService(dbConnection);
         this.customerService = new CustomerService(dbConnection);
     }

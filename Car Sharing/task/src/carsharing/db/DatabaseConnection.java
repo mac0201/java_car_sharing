@@ -9,19 +9,36 @@ import java.sql.SQLException;
 
 public class DatabaseConnection {
 
+    private static DatabaseConnection instance;
+    private Connection connection;
+
     static final String JDBC_DRIVER = "org.h2.Driver";
     private final String DATABASE_NAME;
     private final String DB_URL;
-    private Connection connection;
 
     private final Logger LOGGER = LoggerFactory.getLogger(DatabaseConnection.class);
 
-    public DatabaseConnection(String databaseName) {
+    private DatabaseConnection(String databaseName) {
         this.DATABASE_NAME = databaseName;
         this.DB_URL = "jdbc:h2:./src/carsharing/db/" + DATABASE_NAME;
     }
 
-    public Connection connect() {
+    public static DatabaseConnection getInstance(String databaseName) {
+        if (instance == null) {
+            instance = new DatabaseConnection(databaseName);
+        }
+        return instance;
+    }
+
+    public Connection getConnection() {
+        if (this.connection == null) {
+            return this.connect();
+        }
+        return connection;
+    }
+
+
+    private Connection connect() {
         try {
             Class.forName(JDBC_DRIVER);
             connection = DriverManager.getConnection(DB_URL);
@@ -32,13 +49,6 @@ public class DatabaseConnection {
             LOGGER.error("Database connection with '{}' failed.", DATABASE_NAME, e);
             throw new RuntimeException(e);
         }
-    }
-
-    public Connection getConnection() {
-        if (this.connection == null) {
-            return this.connect();
-        }
-        return connection;
     }
 
     public void close() {
